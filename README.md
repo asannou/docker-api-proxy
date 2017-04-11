@@ -4,36 +4,11 @@ Proxy for accessing Docker daemon's remote API. By default, the API proxy blocks
 
 Tested against Docker Remote API v1.24 and Docker 1.12.
 
-Configure Docker daemon to listen on a port on localhost (e.g., /etc/default/docker on Ubuntu):
+## Start a container
 
-    DOCKER_OPTS="-H tcp://127.0.0.1:2374 -H unix:///var/run/docker.sock"
+    $ docker run -d --name docker-api-proxy -P -v /var/run/docker.sock:/docker.sock asannou/docker-api-proxy
 
-Prepare the host using curl (may require root access):
+## Connect to it using Docker CLI
 
-    curl -L https://raw.github.com/jojow/docker-api-proxy/master/prepare.sh | bash
+    $ docker -H $(docker port docker-api-proxy 2375/tcp) info
 
-Or using wget:
-
-    wget -qO- https://raw.github.com/jojow/docker-api-proxy/master/prepare.sh | bash
-
-Install using curl:
-
-    curl -L https://raw.github.com/jojow/docker-api-proxy/master/install.sh | bash
-
-By default, everything gets installed to $HOME/docker-api-proxy, so you can run it from there:
-
-    cd $HOME/docker-api-proxy
-    ./run.sh
-
-You can also set certain environment variables to configure the API proxy:
-
-    export PROXY_PORT=2375
-    export TARGET_URL=http://127.0.0.1:2374
-    ./run.sh
-
-
-
-## Contributors
-
-* Michael Hahn
-* Johannes Wettinger

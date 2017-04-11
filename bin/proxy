@@ -13,8 +13,7 @@ var filter = require('../lib/filter');
 var action = require('../lib/action');
 
 var proxyPort = process.env.PROXY_PORT || 2375;
-var proxyProtocol = process.env.PROXY_PROTOCOL || 'http';
-var targetUrl = process.env.TARGET_URL || 'http://127.0.0.1:2374'; //targetUrl = 'http://localhost:8888';
+var targetSocket = { socketPath: process.env.TARGET_SOCKET || '/docker.sock' };
 
 
 
@@ -122,10 +121,10 @@ var requestListener = function(req, res) {
         console.log('[blocked]', req.method, req.url);
       } else {
         proxy.web(req, res, {
-          target: targetUrl
+          target: targetSocket
         });
 
-        action.manageGateway(req, res, { targetUrl: targetUrl }, function(err) {
+        action.manageGateway(req, res, { targetUrl: targetSocket }, function(err) {
           if (err) console.log('[error]', err);
         });
 
@@ -145,15 +144,7 @@ var requestListener = function(req, res) {
   });
 };
 
-if (proxyProtocol === 'https') {
-  server = https.createServer({
-    key: fs.readFileSync('ssl/key.pem', 'utf8'),
-    cert: fs.readFileSync('ssl/cert.pem', 'utf8')
-  }, requestListener);
-} else {
-  server = http.createServer(requestListener);
-}
-
+server = http.createServer(requestListener);
 server.listen(proxyPort);
 
 console.log('proxy server listening on port ' + proxyPort);
